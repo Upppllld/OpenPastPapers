@@ -1,0 +1,58 @@
+name: Root-Cause Fix Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release-all:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Maximize Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Create Releases Automatically
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 遍历一级子目录
+          for dir in $(find . -maxdepth 1 -type d ! -name ".*" ! -name "."); do
+            folder_name=${dir#./}
+            
+            # 提取 4 位科目代码
+            subject_code=$(echo "$folder_name" | grep -oE '[0-9]{4}' | tail -1 || echo "$folder_name")
+            
+            tag_name="rel-${folder_name}"
+            zip_file="${folder_name}.zip"
+            release_title="${subject_code} Autorelease"
+
+            echo "------------------------------------------------"
+            echo "📦 Processing: $folder_name"
+
+            # 1. 云端打包
+            zip -r "$zip_file" "$folder_name"
+
+            # 2. 【根治核心】创建 Release
+            # --target ${{ github.sha }}: 强制 GitHub 在当前提交上创建 Release
+            # 如果 tag 不存在，GitHub 会自动创建它，不会再报 "tag doesn't exist"
+            # --clobber: 如果已存在，则覆盖文件
+            gh release create "$tag_name" "$zip_file" \
+              --target ${{ github.sha }} \
+              --title "$release_title" \
+              --notes "Automated upload for $folder_name." \
+              --clobber
+
+            # 3. 立即清理空间
+            rm "$zip_file"
+            echo "✅ Done: $release_title"
+          done
