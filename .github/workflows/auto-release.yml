@@ -1,13 +1,13 @@
 name: Subject Release with English Links
 
 on:
-  workflow_dispatch: # Manually trigger
+  workflow_dispatch:
 
 jobs:
   release-and-link:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Required to create releases and push READMEs
+      contents: write
 
     steps:
       - name: Checkout Code
@@ -23,7 +23,7 @@ jobs:
       - name: Process Subjects
         shell: bash
         run: |
-          # 1. Iterate through first-level directories only
+          # 1. Iterate through first-level directories
           for dir in $(find . -maxdepth 1 -type d ! -name ".*" ! -name "."); do
             folder_name=${dir#./}
             
@@ -38,25 +38,19 @@ jobs:
             echo "------------------------------------------------"
             echo "📦 Processing: $folder_name"
 
-            # 4. Create/Update README.md in English
-            cat <<EOF > "$folder_name/README.md"
-# $subject_code Resources Download Guide
+            # 4. Create README.md using printf (Avoids cat <<EOF indentation issues)
+            printf "# %s Resources Download Guide\n\n" "$subject_code" > "$folder_name/README.md"
+            printf "> [!TIP]\n" >> "$folder_name/README.md"
+            printf "> **Meow~ If you want to download all PDFs for this subject only**\n\n,Click this link!" >> "$folder_name/README.md"
+            printf "## [🚀 Download All PDFs (%s)](%s)\n\n" "$subject_code" "$download_url" >> "$folder_name/README.md"
+            printf "---\n" >> "$folder_name/README.md"
+            printf "*Papers before 2017 are organized in the \`Early\` folder.*\n" >> "$folder_name/README.md"
 
-> [!TIP]
->Meow~ If you want to download all PDFs in this subject only...
-## [🚀 Click here to download all PDFs (Includes Early folder)]($download_url)
-
----
-*This directory contains past papers. Papers prior to 2017 have been moved to the \`Early\` folder for organization.*
-EOF
-
-            # 5. Cloud Zipping (Happens on GitHub servers)
+            # 5. Cloud Zipping
             zip -r "$zip_file" "$folder_name"
 
-            # 6. Create/Overwrite Release
-            # Name format: [Code] Autorelease
+            # 6. Create Release
             release_title="${subject_code} Autorelease"
-            
             gh release create "$tag_name" "$zip_file" \
               --title "$release_title" \
               --notes "Automated release for $folder_name. Direct download link added to folder README." \
@@ -67,13 +61,12 @@ EOF
 
       - name: Commit and Push READMEs
         run: |
-          # Add all generated READMEs and push back to repository
           git add .
           if ! git diff --cached --quiet; then
             git commit -m "docs: add direct download links to subject folders"
             git push origin main
           else
-            echo "No changes detected in READMEs."
+            echo "No changes detected."
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
