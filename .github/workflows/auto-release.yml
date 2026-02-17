@@ -1,0 +1,79 @@
+name: Subject Release with English Links
+
+on:
+  workflow_dispatch: # Manually trigger
+
+jobs:
+  release-and-link:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to create releases and push READMEs
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git Config
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Process Subjects
+        shell: bash
+        run: |
+          # 1. Iterate through first-level directories only
+          for dir in $(find . -maxdepth 1 -type d ! -name ".*" ! -name "."); do
+            folder_name=${dir#./}
+            
+            # 2. Extract subject code (e.g., 9702)
+            subject_code=$(echo "$folder_name" | grep -oE '[0-9]{4}' | tail -1 || echo "$folder_name")
+            
+            # 3. Construct parameters
+            tag_name="rel-${folder_name}"
+            zip_file="${folder_name}.zip"
+            download_url="https://github.com/${{ github.repository }}/releases/download/${tag_name}/${zip_file}"
+            
+            echo "------------------------------------------------"
+            echo "📦 Processing: $folder_name"
+
+            # 4. Create/Update README.md in English
+            cat <<EOF > "$folder_name/README.md"
+# $subject_code Resources Download Guide
+
+> [!TIP]
+>Meow~ If you want to download all PDFs in this subject only...
+## [🚀 Click here to download all PDFs (Includes Early folder)]($download_url)
+
+---
+*This directory contains past papers. Papers prior to 2017 have been moved to the \`Early\` folder for organization.*
+EOF
+
+            # 5. Cloud Zipping (Happens on GitHub servers)
+            zip -r "$zip_file" "$folder_name"
+
+            # 6. Create/Overwrite Release
+            # Name format: [Code] Autorelease
+            release_title="${subject_code} Autorelease"
+            
+            gh release create "$tag_name" "$zip_file" \
+              --title "$release_title" \
+              --notes "Automated release for $folder_name. Direct download link added to folder README." \
+              --clobber
+            
+            rm "$zip_file"
+          done
+
+      - name: Commit and Push READMEs
+        run: |
+          # Add all generated READMEs and push back to repository
+          git add .
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: add direct download links to subject folders"
+            git push origin main
+          else
+            echo "No changes detected in READMEs."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
