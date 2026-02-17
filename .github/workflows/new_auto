@@ -1,0 +1,84 @@
+name: Bulk Release with Auto Space Cleanup
+
+on:
+  workflow_dispatch: # 手动点击运行
+
+jobs:
+  release-all:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Maximize Disk Space
+        # 这是最关键的一步，解决磁盘满的问题
+        run: |
+          echo "🧹 Cleaning up pre-installed software to free space..."
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          df -h # 显示一下清理后的剩余空间，让你放心
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git Config
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Process All Subjects
+        shell: bash
+        run: |
+          # 遍历一级目录
+          for dir in $(find . -maxdepth 1 -type d ! -name ".*" ! -name "."); do
+            folder_name=${dir#./}
+            
+            # 提取科目代码
+            subject_code=$(echo "$folder_name" | grep -oE '[0-9]{4}' | tail -1 || echo "$folder_name")
+            
+            tag_name="rel-${folder_name}"
+            zip_file="${folder_name}.zip"
+            download_url="https://github.com/${{ github.repository }}/releases/download/${tag_name}/${zip_file}"
+            
+            echo "------------------------------------------------"
+            echo "📦 Processing: $folder_name"
+
+            # 1. 在本地生成 README
+            printf "# %s Resources Download Guide\n\n" "$subject_code" > "$folder_name/README.md"
+            printf "> [!TIP]\n" >> "$folder_name/README.md"
+            printf "> **Meow~ If you want to download all PDFs for this subject only**\n\n,Click this link!" >> "$folder_name/README.md"
+            printf "## [🚀 Download All PDFs (%s)](%s)\n\n" "$subject_code" "$download_url" >> "$folder_name/README.md"
+            printf "---\n" >> "$folder_name/README.md"
+            printf "*Papers before 2017 are organized in the \`Early\` folder.*\n" >> "$folder_name/README.md"
+
+            # 2. 打包
+            zip -r "$zip_file" "$folder_name"
+
+            # 3. 上传到 Release
+            # 使用 --clobber 覆盖旧文件
+            gh release create "$tag_name" "$zip_file" \
+              --title "${subject_code} Autorelease" \
+              --notes "Automated batch release." \
+              --clobber
+            
+            # 4. 【核心】上传后立刻删除本地 zip，释放磁盘空间给下一个文件夹使用
+            echo "🗑️ Cleaning up $zip_file to free disk..."
+            rm "$zip_file"
+            
+          done
+
+      - name: Commit and Push READMEs
+        # 所有科目处理完后，最后统一把 README 提交回仓库
+        run: |
+          git add .
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: add download links for all subjects"
+            git push origin main
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
