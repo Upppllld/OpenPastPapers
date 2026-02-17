@@ -51,9 +51,12 @@ jobs:
             # 1. 在本地生成 README
             printf "# %s Resources Download Guide\n\n" "$subject_code" > "$folder_name/README.md"
             printf "> [!TIP]\n" >> "$folder_name/README.md"
-            printf "> **Meow~ If you want to download all PDFs for this subject only**\n\n,Click this link!" >> "$folder_name/README.md"
+            printf "> **Meow~ If you want to download all PDFs for this subject only**, click the button below!\n\n" >> "$folder_name/README.md"
             printf "## [🚀 Download All PDFs (%s)](%s)\n\n" "$subject_code" "$download_url" >> "$folder_name/README.md"
-            printf "---\n" >> "$folder_name/README.md"
+            
+            # 关键修复点：这里加上 -- 
+            printf -- "---\n" >> "$folder_name/README.md"
+            
             printf "*Papers before 2017 are organized in the \`Early\` folder.*\n" >> "$folder_name/README.md"
 
             # 2. 打包
