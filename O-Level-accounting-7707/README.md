@@ -3,4 +3,4 @@
 
 Click this link!
 
-## [🚀 Download All PDFs (7707)](https://github.com/Upppllld/one/releases/tag/7707_02.21.2026)
+## [🚀 Download All PDFs (7707)](https://github.com/Upppllld/one/releases/tag/7707_02.20.2026)

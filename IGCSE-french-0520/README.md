@@ -3,4 +3,4 @@
 
 Click this link!
 
-## [🚀 Download All PDFs (0520)](https://github.com/Upppllld/one/releases/tag/0520_02.21.2026)
+## [🚀 Download All PDFs (0520)](https://github.com/Upppllld/one/releases/tag/0520_02.20.2026)

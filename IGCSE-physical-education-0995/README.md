@@ -3,4 +3,4 @@
 
 Click this link!
 
-## [🚀 Download All PDFs (0995)](https://github.com/Upppllld/one/releases/tag/0995_02.21.2026)
+## [🚀 Download All PDFs (0995)](https://github.com/Upppllld/one/releases/tag/0995_02.20.2026)

@@ -3,4 +3,4 @@
 
 Click this link!
 
-## [🚀 Download All PDFs (6010)](https://github.com/Upppllld/one/releases/tag/6010_02.21.2026)
+## [🚀 Download All PDFs (6010)](https://github.com/Upppllld/one/releases/tag/6010_02.20.2026)
