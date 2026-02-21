@@ -3,4 +3,4 @@
 
 Click this link!
 
-## [🚀 Download All PDFs (3025)](https://github.com/Upppllld/one/releases/tag/3025_02.20.2026)
+## [🚀 Download All PDFs (3025)](https://github.com/Upppllld/OpenPastPapers/releases/tag/3025_02.20.2026)

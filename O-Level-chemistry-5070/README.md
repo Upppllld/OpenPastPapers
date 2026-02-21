@@ -3,4 +3,4 @@
 
 Click this link!
 
-## [🚀 Download All PDFs (5070)](https://github.com/Upppllld/one/releases/tag/5070_02.20.2026)
+## [🚀 Download All PDFs (5070)](https://github.com/Upppllld/OpenPastPapers/releases/tag/5070_02.20.2026)

@@ -3,4 +3,4 @@
 
 Click this link!
 
-## [🚀 Download All PDFs (7010)](https://github.com/Upppllld/one/releases/tag/7010_02.20.2026)
+## [🚀 Download All PDFs (7010)](https://github.com/Upppllld/OpenPastPapers/releases/tag/7010_02.20.2026)

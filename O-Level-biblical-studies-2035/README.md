@@ -3,4 +3,4 @@
 
 Click this link!
 
-## [🚀 Download All PDFs (2035)](https://github.com/Upppllld/one/releases/tag/2035_02.20.2026)
+## [🚀 Download All PDFs (2035)](https://github.com/Upppllld/OpenPastPapers/releases/tag/2035_02.20.2026)

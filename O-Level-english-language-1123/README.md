@@ -3,4 +3,4 @@
 
 Click this link!
 
-## [🚀 Download All PDFs (1123)](https://github.com/Upppllld/one/releases/tag/1123_02.20.2026)
+## [🚀 Download All PDFs (1123)](https://github.com/Upppllld/OpenPastPapers/releases/tag/1123_02.20.2026)
